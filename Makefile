@@ -50,6 +50,27 @@ ifdef OPTS
 ANSIBLE_PLAYBOOK_OPTS += $(OPTS)
 endif
 
+
+.PHONY: help clean pip-install
+
+help:
+	@echo "Usage: make playbook [playbook ...]"
+	@echo "Variables:"
+	@echo "  CHECK       - don't make any changes. Default: '$(CHECK)'."
+	@echo "  DIFF        - show the differences. Default: '$(DIFF)'."
+	@echo "  EXTRA_VARS  - additional variables. Default: '$(EXTRA_VARS)'."
+	@echo "  INVENTORY   - specify inventory. Default: '$(INVENTORY)'."
+	@echo "  LIMIT       - limit selected hosts. Default: '$(LIMIT)'."
+	@echo "  SKIP_TAGS   - only run plays and tasks whose tags do not match. Default: '$(SKIP_TAGS)'."
+	@echo "  TAGS        - only run plays and tasks tagged with these values. Default: '$(TAGS)'."
+	@echo "  VERBOSE     - verbose mode [0-6]. Default: '$(VERBOSE)'."
+	@echo "  OPTS        - extra options. Default: '$(OPTS)'."
+	@echo "  USE_PYTHON3 - yes, for python3 virtual environment. Default: '$(USE_PYTHON3)'."
+	@echo "  VENV_DIR    - directory to create the environment. Default: '$(VENV_DIR)'."
+
+clean:
+	$(RM) -r $(VENV_DIR)
+
 ## Here be dragons ;)
 
 # Fix for ansible inventory scripts, can be skipped if no *.py scripts are in use.
