@@ -7,6 +7,20 @@ VENV_DIR    ?= venv
 
 PIP_REQUIREMENTS  = requirements.txt
 PIP               = $(VENV_DIR)/bin/pip
+ANSIBLE           = $(VENV_DIR)/bin/ansible
+ANSIBLE_GALAXY    = $(VENV_DIR)/bin/ansible-galaxy
+ANSIBLE_INVENTORY = $(VENV_DIR)/bin/ansible-inventory
+ANSIBLE_PLAYBOOK  = $(VENV_DIR)/bin/ansible-playbook
+ANSIBLE_VAULT     = $(VENV_DIR)/bin/ansible-vault
+
+## Here be dragons ;)
+
+# Fix for ansible inventory scripts, can be skipped if no *.py scripts are in use.
+export PATH := $(VENV_DIR)/bin:$(PATH)
+
+%: %.yml pip-install
+	$(ANSIBLE_PLAYBOOK) $(ANSIBLE_PLAYBOOK_OPTS) $<
+
 pip-install: $(VENV_DIR) $(PIP_REQUIREMENTS)
 	$(PIP) install -r $(PIP_REQUIREMENTS)
 
