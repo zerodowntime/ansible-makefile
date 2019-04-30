@@ -5,7 +5,7 @@
 CHECK       ?= no
 DIFF        ?= no
 EXTRA_VARS  ?=
-INVENTORY   ?=
+INVENTORY   ?= a
 LIMIT       ?=
 SKIP_TAGS   ?=
 TAGS        ?=
@@ -22,34 +22,15 @@ ANSIBLE_INVENTORY = $(VENV_DIR)/bin/ansible-inventory
 ANSIBLE_PLAYBOOK  = $(VENV_DIR)/bin/ansible-playbook
 ANSIBLE_VAULT     = $(VENV_DIR)/bin/ansible-vault
 
-ifeq ($(CHECK), yes)
-ANSIBLE_PLAYBOOK_OPTS += --check
-endif
-ifeq ($(DIFF), yes)
-ANSIBLE_PLAYBOOK_OPTS += --diff
-endif
-ifdef EXTRA_VARS
+ANSIBLE_PLAYBOOK_OPTS += $(if $(filter y yes, $(CHECK)),--check)
+ANSIBLE_PLAYBOOK_OPTS += $(if $(filter y yes, $(DIFF)),--diff)
 ANSIBLE_PLAYBOOK_OPTS += $(foreach item,$(EXTRA_VARS),--extra-vars=$(item))
-endif
-ifdef INVENTORY
 ANSIBLE_PLAYBOOK_OPTS += $(foreach item,$(INVENTORY),--inventory=$(item))
-endif
-ifdef LIMIT
-ANSIBLE_PLAYBOOK_OPTS += --limit=$(LIMIT)
-endif
-ifdef SKIP_TAGS
-ANSIBLE_PLAYBOOK_OPTS += --skip-tags=$(SKIP_TAGS)
-endif
-ifdef TAGS
-ANSIBLE_PLAYBOOK_OPTS += --tags=$(TAGS)
-endif
-ifneq ($(VERBOSE), 0)
-ANSIBLE_PLAYBOOK_OPTS += $(word $(VERBOSE), -v -vv -vvv -vvvv -vvvvv -vvvvvv)
-endif
-ifdef OPTS
+ANSIBLE_PLAYBOOK_OPTS += $(if $(LIMIT),--limit=$(LIMIT))
+ANSIBLE_PLAYBOOK_OPTS += $(if $(SKIP_TAGS),--skip-tags=$(SKIP_TAGS))
+ANSIBLE_PLAYBOOK_OPTS += $(if $(TAGS),--tags=$(TAGS))
+ANSIBLE_PLAYBOOK_OPTS += $(if $(filter 1 2 3 4 5 6, $(VERBOSE)),$(word $(VERBOSE), -v -vv -vvv -vvvv -vvvvv -vvvvvv))
 ANSIBLE_PLAYBOOK_OPTS += $(OPTS)
-endif
-
 
 .PHONY: help clean pip-install
 
