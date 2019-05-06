@@ -5,7 +5,7 @@
 CHECK       ?= no
 DIFF        ?= no
 EXTRA_VARS  ?=
-INVENTORY   ?= a
+INVENTORY   ?=
 LIMIT       ?=
 SKIP_TAGS   ?=
 TAGS        ?=
