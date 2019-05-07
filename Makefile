@@ -32,7 +32,7 @@ ANSIBLE_PLAYBOOK_OPTS += $(foreach item,$(TAGS),--tags=$(item))
 ANSIBLE_PLAYBOOK_OPTS += $(if $(filter 1 2 3 4 5 6, $(VERBOSE)),$(word $(VERBOSE), -v -vv -vvv -vvvv -vvvvv -vvvvvv))
 ANSIBLE_PLAYBOOK_OPTS += $(OPTS)
 
-.PHONY: help clean pip-install
+.PHONY: help clean pip-upgrade pip-install
 
 help:
 	@echo "Usage: make playbook [playbook ...]"
@@ -62,6 +62,9 @@ export PATH := $(VENV_DIR)/bin:$(PATH)
 
 pip-install: $(VENV_DIR) $(PIP_REQUIREMENTS)
 	$(PIP) install -r $(PIP_REQUIREMENTS)
+
+pip-upgrade: $(VENV_DIR)
+	$(PIP) install --upgrade pip
 
 $(VENV_DIR):
 ifeq ($(USE_PYTHON3), yes)
