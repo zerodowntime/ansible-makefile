@@ -24,15 +24,15 @@ ANSIBLE_INVENTORY = $(VENV_DIR)/bin/ansible-inventory
 ANSIBLE_PLAYBOOK  = $(VENV_DIR)/bin/ansible-playbook
 ANSIBLE_VAULT     = $(VENV_DIR)/bin/ansible-vault
 
-ANSIBLE_PLAYBOOK_OPTS += $(if $(filter y yes, $(CHECK)),--check)
-ANSIBLE_PLAYBOOK_OPTS += $(if $(filter y yes, $(DIFF)),--diff)
-ANSIBLE_PLAYBOOK_OPTS += $(foreach item,$(EXTRA_VARS),--extra-vars=$(item))
-ANSIBLE_PLAYBOOK_OPTS += $(foreach item,$(INVENTORY),--inventory=$(item))
-ANSIBLE_PLAYBOOK_OPTS += $(if $(LIMIT),--limit=$(LIMIT))
-ANSIBLE_PLAYBOOK_OPTS += $(foreach item,$(SKIP_TAGS),--skip-tags=$(item))
-ANSIBLE_PLAYBOOK_OPTS += $(foreach item,$(TAGS),--tags=$(item))
-ANSIBLE_PLAYBOOK_OPTS += $(if $(filter 1 2 3 4 5 6, $(VERBOSE)),$(word $(VERBOSE), -v -vv -vvv -vvvv -vvvvv -vvvvvv))
-ANSIBLE_PLAYBOOK_OPTS += $(OPTS)
+ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(CHECK)),--check)
+ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(DIFF)),--diff)
+ANSIBLE_PLAYBOOK_FLAGS += $(foreach item,$(EXTRA_VARS),--extra-vars=$(item))
+ANSIBLE_PLAYBOOK_FLAGS += $(foreach item,$(INVENTORY),--inventory=$(item))
+ANSIBLE_PLAYBOOK_FLAGS += $(if $(LIMIT),--limit=$(LIMIT))
+ANSIBLE_PLAYBOOK_FLAGS += $(foreach item,$(SKIP_TAGS),--skip-tags=$(item))
+ANSIBLE_PLAYBOOK_FLAGS += $(foreach item,$(TAGS),--tags=$(item))
+ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter 1 2 3 4 5 6, $(VERBOSE)),$(word $(VERBOSE), -v -vv -vvv -vvvv -vvvvv -vvvvvv))
+ANSIBLE_PLAYBOOK_FLAGS += $(OPTS)
 
 .PHONY: help clean pip-upgrade pip-install ansible-galaxy-install
 
@@ -60,7 +60,7 @@ clean:
 export PATH := $(VENV_DIR)/bin:$(PATH)
 
 %: %.yml pip-install
-	$(ANSIBLE_PLAYBOOK) $(ANSIBLE_PLAYBOOK_OPTS) $<
+	$(ANSIBLE_PLAYBOOK) $(ANSIBLE_PLAYBOOK_FLAGS) $<
 
 ansible-galaxy-install: pip-install $(ANSIBLE_REQUIREMENTS)
 	$(ANSIBLE_GALAXY) install --role-file=$(ANSIBLE_REQUIREMENTS) --roles-path=roles.d/
