@@ -1,13 +1,34 @@
 # ansible-makefile
 
-## Usage:
+## Usage
 ```
 make playbook [playbook2 ...]  # run playbooks (one after another)
+make virtualenv                # create virtual environment
 make clean                     # remove virtual environment
 make help                      # guess ;)
 ```
 
-## Variables:
+## Customization
+Create your own `Makefile` and include this one:
+```
+include ansible-makefile/Makefile
+
+SETUP     ?= devel
+INVENTORY  = inventories/$(SETUP)
+
+PLAYBOOKS += playbooks/foo
+PLAYBOOKS += playbooks/bar
+PLAYBOOKS += playbooks/baz
+
+all: $(PLAYBOOKS)
+  echo ALL DONE!!
+
+run-some-tasks: TAGS += foobar
+run-some-tasks: TAGS += whatever
+run-some-tasks: playbooks/site
+```
+
+## Variables
 * `CHECK`       - don't make any changes. Default: 'no'.
 * `DIFF`        - show the differences. Default: 'no'.
 * `EXTRA_VARS`  - additional variables. Default: ''.
