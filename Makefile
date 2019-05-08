@@ -14,7 +14,9 @@ OPTS        ?=
 USE_PYTHON3 ?= no
 VENV_DIR    ?= venv
 
-PIP_REQUIREMENTS  = requirements.txt
+PIP_REQUIREMENTS     = requirements.txt
+ANSIBLE_REQUIREMENTS = requirements.yml
+
 PIP               = $(VENV_DIR)/bin/pip
 ANSIBLE           = $(VENV_DIR)/bin/ansible
 ANSIBLE_GALAXY    = $(VENV_DIR)/bin/ansible-galaxy
