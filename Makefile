@@ -34,7 +34,9 @@ ANSIBLE_PLAYBOOK_FLAGS += $(foreach item,$(TAGS),--tags=$(item))
 ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter 1 2 3 4 5 6, $(VERBOSE)),$(word $(VERBOSE), -v -vv -vvv -vvvv -vvvvv -vvvvvv))
 ANSIBLE_PLAYBOOK_FLAGS += $(OPTS)
 
-.PHONY: help clean pip-upgrade pip-install ansible-galaxy-install
+ANSIBLE_INVENTORY_FLAGS += $(foreach item,$(INVENTORY),--inventory=$(item))
+
+.PHONY: help clean virtualenv ansible-galaxy-install show-inventory
 
 help:
 	@echo "Usage: make playbook [playbook ...]"
@@ -59,17 +61,9 @@ clean:
 # Fix for ansible inventory scripts, can be skipped if no *.py scripts are in use.
 export PATH := $(VENV_DIR)/bin:$(PATH)
 
-%: %.yml pip-install
-	$(ANSIBLE_PLAYBOOK) $(ANSIBLE_PLAYBOOK_FLAGS) $<
-
-ansible-galaxy-install: pip-install $(ANSIBLE_REQUIREMENTS)
-	$(ANSIBLE_GALAXY) install --role-file=$(ANSIBLE_REQUIREMENTS) --roles-path=roles.d/
-
-pip-install: $(VENV_DIR) $(PIP_REQUIREMENTS)
-	$(PIP) install -r $(PIP_REQUIREMENTS)
-
-pip-upgrade: $(VENV_DIR)
+virtualenv: $(VENV_DIR) $(PIP_REQUIREMENTS)
 	$(PIP) install --upgrade pip
+	$(PIP) install -r $(PIP_REQUIREMENTS)
 
 $(VENV_DIR):
 ifeq ($(USE_PYTHON3), yes)
@@ -77,4 +71,12 @@ ifeq ($(USE_PYTHON3), yes)
 else
 	virtualenv $@
 endif
-	$(PIP) install --upgrade pip
+
+%: %.yml virtualenv
+	$(ANSIBLE_PLAYBOOK) $(ANSIBLE_PLAYBOOK_FLAGS) $<
+
+ansible-galaxy-install: virtualenv $(ANSIBLE_REQUIREMENTS)
+	$(ANSIBLE_GALAXY) install --role-file=$(ANSIBLE_REQUIREMENTS) --roles-path=roles.d/
+
+show-inventory: virtualenv
+	$(ANSIBLE_INVENTORY) $(ANSIBLE_INVENTORY_FLAGS) --graph
