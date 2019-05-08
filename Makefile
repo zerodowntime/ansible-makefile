@@ -34,7 +34,7 @@ ANSIBLE_PLAYBOOK_OPTS += $(foreach item,$(TAGS),--tags=$(item))
 ANSIBLE_PLAYBOOK_OPTS += $(if $(filter 1 2 3 4 5 6, $(VERBOSE)),$(word $(VERBOSE), -v -vv -vvv -vvvv -vvvvv -vvvvvv))
 ANSIBLE_PLAYBOOK_OPTS += $(OPTS)
 
-.PHONY: help clean pip-upgrade pip-install
+.PHONY: help clean pip-upgrade pip-install ansible-galaxy-install
 
 help:
 	@echo "Usage: make playbook [playbook ...]"
@@ -61,6 +61,9 @@ export PATH := $(VENV_DIR)/bin:$(PATH)
 
 %: %.yml pip-install
 	$(ANSIBLE_PLAYBOOK) $(ANSIBLE_PLAYBOOK_OPTS) $<
+
+ansible-galaxy-install: pip-install $(ANSIBLE_REQUIREMENTS)
+	$(ANSIBLE_GALAXY) install --role-file=$(ANSIBLE_REQUIREMENTS) --roles-path=roles.d/
 
 pip-install: $(VENV_DIR) $(PIP_REQUIREMENTS)
 	$(PIP) install -r $(PIP_REQUIREMENTS)
