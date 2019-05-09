@@ -11,7 +11,7 @@ SKIP_TAGS   ?=
 TAGS        ?=
 VERBOSE     ?= 0
 OPTS        ?=
-USE_PYTHON3 ?= no
+USE_PYTHON3 ?= yes
 VENV_DIR    ?= venv
 
 PIP_REQUIREMENTS     = requirements.txt
