@@ -79,7 +79,7 @@ $(VENV_DIR)/.done: $(VENV_DIR) $(PIP_REQUIREMENTS)
 %: %.yml virtualenv
 	$(ANSIBLE_PLAYBOOK) $(ANSIBLE_PLAYBOOK_FLAGS) $<
 
-%.pem: %.pem.vault
+%.pem: %.pem.vault virtualenv
 	$(ANSIBLE_VAULT) decrypt --output=$@ $<
 
 ansible-galaxy-install: virtualenv $(ANSIBLE_REQUIREMENTS)
