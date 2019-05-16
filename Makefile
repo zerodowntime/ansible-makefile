@@ -36,7 +36,9 @@ ANSIBLE_PLAYBOOK_FLAGS += $(OPTS)
 
 ANSIBLE_INVENTORY_FLAGS += $(foreach item,$(INVENTORY),--inventory=$(item))
 
-.PHONY: help clean virtualenv ansible-galaxy-install show-inventory
+.PHONY: help clean ansible-galaxy-install show-inventory
+
+.SECONDARY: virtualenv
 
 help:
 	@echo "Usage: make playbook [playbook ...]"
