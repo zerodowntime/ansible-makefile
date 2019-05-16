@@ -79,6 +79,9 @@ $(VENV_DIR)/.done: $(VENV_DIR) $(PIP_REQUIREMENTS)
 %: %.yml virtualenv
 	$(ANSIBLE_PLAYBOOK) $(ANSIBLE_PLAYBOOK_FLAGS) $<
 
+%.pem: %.pem.vault
+	$(ANSIBLE_VAULT) decrypt --output=$@ $<
+
 ansible-galaxy-install: virtualenv $(ANSIBLE_REQUIREMENTS)
 	$(ANSIBLE_GALAXY) install --role-file=$(ANSIBLE_REQUIREMENTS) --roles-path=roles.d/
 
