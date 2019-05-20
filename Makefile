@@ -63,7 +63,7 @@ clean:
 # Fix for ansible inventory scripts, can be skipped if no *.py scripts are in use.
 export PATH := $(VENV_DIR)/bin:$(PATH)
 
-virtualenv: $(VENV_DIR) $(VENV_DIR)/.done
+virtualenv: $(VENV_DIR) $(VENV_DIR)/.done $(VENV_DIR)/.gitignore
 	@
 
 $(VENV_DIR):
@@ -72,6 +72,9 @@ ifeq ($(USE_PYTHON3), yes)
 else
 	virtualenv $@
 endif
+
+$(VENV_DIR)/.gitignore: $(VENV_DIR)
+	echo '*' > $@
 
 $(VENV_DIR)/.done: $(VENV_DIR) $(PIP_REQUIREMENTS)
 	$(PIP) install --upgrade pip
