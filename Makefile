@@ -24,6 +24,8 @@ ANSIBLE_INVENTORY = $(VENV_DIR)/bin/ansible-inventory
 ANSIBLE_PLAYBOOK  = $(VENV_DIR)/bin/ansible-playbook
 ANSIBLE_VAULT     = $(VENV_DIR)/bin/ansible-vault
 
+ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(ASK_VAULT_PASS)),--ask-vault-pass)
+ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(ASK_BECOME_PASS)),--ask-become-pass)
 ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(CHECK)),--check)
 ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(DIFF)),--diff)
 ANSIBLE_PLAYBOOK_FLAGS += $(foreach item,$(EXTRA_VARS),--extra-vars=$(item))
