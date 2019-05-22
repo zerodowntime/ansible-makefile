@@ -11,18 +11,6 @@ SKIP_TAGS   ?=
 TAGS        ?=
 VERBOSE     ?= 0
 OPTS        ?=
-USE_PYTHON3 ?= yes
-VENV_DIR    ?= venv
-
-PIP_REQUIREMENTS     = requirements.txt
-ANSIBLE_REQUIREMENTS = requirements.yml
-
-PIP               = $(VENV_DIR)/bin/pip
-ANSIBLE           = $(VENV_DIR)/bin/ansible
-ANSIBLE_GALAXY    = $(VENV_DIR)/bin/ansible-galaxy
-ANSIBLE_INVENTORY = $(VENV_DIR)/bin/ansible-inventory
-ANSIBLE_PLAYBOOK  = $(VENV_DIR)/bin/ansible-playbook
-ANSIBLE_VAULT     = $(VENV_DIR)/bin/ansible-vault
 
 ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(ASK_VAULT_PASS)),--ask-vault-pass)
 ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(ASK_BECOME_PASS)),--ask-become-pass)
@@ -38,9 +26,7 @@ ANSIBLE_PLAYBOOK_FLAGS += $(OPTS)
 
 ANSIBLE_INVENTORY_FLAGS += $(foreach item,$(INVENTORY),--inventory=$(item))
 
-.PHONY: help clean ansible-galaxy-install show-inventory
-
-.SECONDARY: virtualenv
+.PHONY: help clean
 
 help:
 	@echo "Usage: make playbook [playbook ...]"
@@ -57,40 +43,11 @@ help:
 	@echo "  USE_PYTHON3 - yes, for python3 virtual environment. Default: '$(USE_PYTHON3)'."
 	@echo "  VENV_DIR    - directory to create the environment. Default: '$(VENV_DIR)'."
 
-clean:
-	$(RM) -r $(VENV_DIR)
+clean: clean-virtualenv
 
-## Here be dragons ;)
+include virtualenv.mk
+
+include ansible.mk
 
 # Fix for ansible inventory scripts, can be skipped if no *.py scripts are in use.
 export PATH := $(VENV_DIR)/bin:$(PATH)
-
-virtualenv: $(VENV_DIR) $(VENV_DIR)/.done $(VENV_DIR)/.gitignore
-	@
-
-$(VENV_DIR):
-ifeq ($(USE_PYTHON3), yes)
-	python3 -m venv $@
-else
-	virtualenv $@
-endif
-
-$(VENV_DIR)/.gitignore: $(VENV_DIR)
-	echo '*' > $@
-
-$(VENV_DIR)/.done: $(VENV_DIR) $(PIP_REQUIREMENTS)
-	$(PIP) install --upgrade pip
-	$(PIP) install -r $(PIP_REQUIREMENTS)
-	touch $@
-
-%: %.yml virtualenv
-	$(ANSIBLE_PLAYBOOK) $(ANSIBLE_PLAYBOOK_FLAGS) $<
-
-%: %.vault virtualenv
-	$(ANSIBLE_VAULT) decrypt --output=$@ $<
-
-ansible-galaxy-install: virtualenv $(ANSIBLE_REQUIREMENTS)
-	$(ANSIBLE_GALAXY) install --role-file=$(ANSIBLE_REQUIREMENTS) --roles-path=roles.d/
-
-show-inventory: virtualenv
-	$(ANSIBLE_INVENTORY) $(ANSIBLE_INVENTORY_FLAGS) --graph
