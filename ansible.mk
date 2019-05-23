@@ -37,7 +37,7 @@ run-playbook: $(PLAYBOOK) | $(ANSIBLE)
 	$(ANSIBLE_PLAYBOOK) $(ANSIBLE_PLAYBOOK_FLAGS) $<
 
 %: %.vault | $(ANSIBLE)
-	$(ANSIBLE_VAULT) $(ANSIBLE_VAULT_FLAGS) decrypt --output=$@ $<
+	$(ANSIBLE_VAULT) decrypt $(ANSIBLE_VAULT_FLAGS) --output=$@ $<
 
 .PHONY: FORCE-PHONY
 FORCE-PHONY:
