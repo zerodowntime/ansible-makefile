@@ -14,8 +14,11 @@ ANSIBLE_VAULT     = $(VENV_DIR)/bin/ansible-vault
 
 ## Here be dragons ;)
 
-$(ANSIBLE): virtualenv
-	$(warning No Ansible installed! Installing latest version.)
+$(ANSIBLE): | virtualenv
+	@test -f $@ || echo "Cannot find Ansible. Try running 'make ansible-install' or fix $(PIP_REQUIREMENTS)." && false
+
+.PHONY: ansible-install
+ansible-install: | virtualenv
 	$(PIP) install ansible
 
 .PHONY: galaxy-install
