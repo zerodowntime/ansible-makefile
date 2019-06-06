@@ -25,6 +25,10 @@ ansible-install: | $(PIP)
 galaxy-install: $(ANSIBLE_REQUIREMENTS) | $(ANSIBLE)
 	$(ANSIBLE.GALAXY) install --role-file=$(ANSIBLE_REQUIREMENTS) --roles-path=$(ANSIBLE_ROLES_PATH)
 
+.PHONY: list-inventory
+list-inventory: | $(ANSIBLE)
+	$(ANSIBLE.INVENTORY) $(ANSIBLE_INVENTORY_FLAGS) --list
+
 .PHONY: show-inventory
 show-inventory: | $(ANSIBLE)
 	$(ANSIBLE.INVENTORY) $(ANSIBLE_INVENTORY_FLAGS) --graph
