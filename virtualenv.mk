@@ -38,5 +38,5 @@ $(VENV_DIR)/.gitignore: | $(VENV_DIR)
 	echo '*' > $@
 
 .PHONY: pip-freeze
-pip-freeze: | $(VENV_DIR)
+pip-freeze: | $(PIP)
 	$(PIP) freeze > $(PIP_REQUIREMENTS)
