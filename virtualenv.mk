@@ -18,7 +18,7 @@ export PATH := $(VENV_DIR)/bin:$(PATH)
 endif
 
 .SECONDARY: virtualenv
-virtualenv: $(VENV_DIR)/.installed $(VENV_DIR)/.gitignore
+virtualenv: $(VENV_DIR)/.installed
 
 .PHONY: clean-virtualenv
 clean-virtualenv:
@@ -32,6 +32,7 @@ ifeq ($(USE_PYTHON3), yes)
 else
 	virtualenv $(VENV_DIR)
 endif
+	echo '*' > $(VENV_DIR)/.gitignore
 
 $(VENV_DIR)/.installed: $(PIP_REQUIREMENTS) | $(VENV_DIR)
 	$(PIP) install --upgrade pip
@@ -39,9 +40,6 @@ ifdef PIP_REQUIREMENTS
 	$(PIP) install -r $(PIP_REQUIREMENTS)
 endif
 	touch $@
-
-$(VENV_DIR)/.gitignore: | $(VENV_DIR)
-	echo '*' > $@
 
 .PHONY: pip-freeze
 pip-freeze: | $(PIP)
