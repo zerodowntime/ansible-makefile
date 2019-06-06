@@ -3,6 +3,7 @@
 ##
 
 USE_PYTHON3      ?= yes
+ADD_PATH         ?= yes
 VENV_DIR         ?= venv
 PIP_REQUIREMENTS ?= requirements.txt
 
@@ -10,6 +11,11 @@ PIP    = $(VENV_DIR)/bin/pip
 PYTHON = $(VENV_DIR)/bin/python
 
 ## Here be dragons ;)
+
+# Fix for Ansible *.py inventory scripts, useful for other tools.
+ifeq ($(ADD_PATH), yes)
+export PATH := $(VENV_DIR)/bin:$(PATH)
+endif
 
 .SECONDARY: virtualenv
 virtualenv: $(VENV_DIR)/.installed $(VENV_DIR)/.gitignore
