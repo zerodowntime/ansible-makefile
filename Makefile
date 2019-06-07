@@ -56,10 +56,12 @@ pip-freeze: | $(PIP)
 
 $(ANSIBLE): | virtualenv
 	@test -f $@ || (echo "Cannot find Ansible. Try running 'make ansible-install' or fix PIP_REQUIREMENTS." && false)
+	$(ANSIBLE) --version
 
 .PHONY: ansible-install
 ansible-install: | $(PIP)
 	$(PIP) install ansible
+	$(ANSIBLE) --version
 
 .PHONY: galaxy-install
 galaxy-install: $(ANSIBLE_REQUIREMENTS) | $(ANSIBLE)
