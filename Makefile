@@ -2,95 +2,89 @@
 ## author: Piotr Stawarski <piotr.stawarski@zerodowntime.pl>
 ##
 
-CHECK       ?= no
-DIFF        ?= no
-EXTRA_VARS  ?=
-INVENTORY   ?=
-LIMIT       ?=
-SKIP_TAGS   ?=
-TAGS        ?=
-VERBOSE     ?= 0
-OPTS        ?=
-USE_PYTHON3 ?= yes
-VENV_DIR    ?= venv
-
-PIP_REQUIREMENTS     = requirements.txt
-ANSIBLE_REQUIREMENTS = requirements.yml
+USE_PYTHON3          ?= yes
+ADD_PATH             ?= yes
+VENV_DIR             ?= venv
+PIP_REQUIREMENTS     ?= requirements.txt
+ANSIBLE_REQUIREMENTS ?= requirements.yml
+ANSIBLE_ROLES_PATH   ?= roles.d/
 
 PIP               = $(VENV_DIR)/bin/pip
+PYTHON            = $(VENV_DIR)/bin/python
 ANSIBLE           = $(VENV_DIR)/bin/ansible
-ANSIBLE_GALAXY    = $(VENV_DIR)/bin/ansible-galaxy
-ANSIBLE_INVENTORY = $(VENV_DIR)/bin/ansible-inventory
-ANSIBLE_PLAYBOOK  = $(VENV_DIR)/bin/ansible-playbook
-ANSIBLE_VAULT     = $(VENV_DIR)/bin/ansible-vault
-
-ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(ASK_VAULT_PASS)),--ask-vault-pass)
-ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(ASK_BECOME_PASS)),--ask-become-pass)
-ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(CHECK)),--check)
-ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter y yes, $(DIFF)),--diff)
-ANSIBLE_PLAYBOOK_FLAGS += $(foreach item,$(EXTRA_VARS),--extra-vars=$(item))
-ANSIBLE_PLAYBOOK_FLAGS += $(foreach item,$(INVENTORY),--inventory=$(item))
-ANSIBLE_PLAYBOOK_FLAGS += $(if $(LIMIT),--limit=$(LIMIT))
-ANSIBLE_PLAYBOOK_FLAGS += $(foreach item,$(SKIP_TAGS),--skip-tags=$(item))
-ANSIBLE_PLAYBOOK_FLAGS += $(foreach item,$(TAGS),--tags=$(item))
-ANSIBLE_PLAYBOOK_FLAGS += $(if $(filter 1 2 3 4 5 6, $(VERBOSE)),$(word $(VERBOSE), -v -vv -vvv -vvvv -vvvvv -vvvvvv))
-ANSIBLE_PLAYBOOK_FLAGS += $(OPTS)
-
-ANSIBLE_INVENTORY_FLAGS += $(foreach item,$(INVENTORY),--inventory=$(item))
-
-.PHONY: help clean ansible-galaxy-install show-inventory
-
-.SECONDARY: virtualenv
-
-help:
-	@echo "Usage: make playbook [playbook ...]"
-	@echo "Variables:"
-	@echo "  CHECK       - don't make any changes. Default: '$(CHECK)'."
-	@echo "  DIFF        - show the differences. Default: '$(DIFF)'."
-	@echo "  EXTRA_VARS  - additional variables. Default: '$(EXTRA_VARS)'."
-	@echo "  INVENTORY   - specify inventory. Default: '$(INVENTORY)'."
-	@echo "  LIMIT       - limit selected hosts. Default: '$(LIMIT)'."
-	@echo "  SKIP_TAGS   - only run plays and tasks whose tags do not match. Default: '$(SKIP_TAGS)'."
-	@echo "  TAGS        - only run plays and tasks tagged with these values. Default: '$(TAGS)'."
-	@echo "  VERBOSE     - verbose mode [0-6]. Default: '$(VERBOSE)'."
-	@echo "  OPTS        - extra options. Default: '$(OPTS)'."
-	@echo "  USE_PYTHON3 - yes, for python3 virtual environment. Default: '$(USE_PYTHON3)'."
-	@echo "  VENV_DIR    - directory to create the environment. Default: '$(VENV_DIR)'."
-
-clean:
-	$(RM) -r $(VENV_DIR)
+ANSIBLE.CONFIG    = $(VENV_DIR)/bin/ansible-config
+ANSIBLE.GALAXY    = $(VENV_DIR)/bin/ansible-galaxy
+ANSIBLE.INVENTORY = $(VENV_DIR)/bin/ansible-inventory
+ANSIBLE.PLAYBOOK  = $(VENV_DIR)/bin/ansible-playbook
+ANSIBLE.VAULT     = $(VENV_DIR)/bin/ansible-vault
 
 ## Here be dragons ;)
 
-# Fix for ansible inventory scripts, can be skipped if no *.py scripts are in use.
+# Fix for Ansible *.py inventory scripts, useful for other tools.
+ifeq ($(ADD_PATH), yes)
 export PATH := $(VENV_DIR)/bin:$(PATH)
+endif
 
-virtualenv: $(VENV_DIR) $(VENV_DIR)/.done $(VENV_DIR)/.gitignore
-	@
+.SECONDARY: virtualenv
+virtualenv: $(VENV_DIR)/.installed
+
+.PHONY: clean-virtualenv
+clean-virtualenv:
+	$(RM) -r $(VENV_DIR)
+
+$(PIP) $(PYTHON): | $(VENV_DIR)
 
 $(VENV_DIR):
 ifeq ($(USE_PYTHON3), yes)
-	python3 -m venv $@
+	python3 -m venv $(VENV_DIR)
 else
-	virtualenv $@
+	virtualenv $(VENV_DIR)
 endif
+	echo '*' > $(VENV_DIR)/.gitignore
 
-$(VENV_DIR)/.gitignore: $(VENV_DIR)
-	echo '*' > $@
-
-$(VENV_DIR)/.done: $(VENV_DIR) $(PIP_REQUIREMENTS)
+$(VENV_DIR)/.installed: $(PIP_REQUIREMENTS) | $(VENV_DIR)
 	$(PIP) install --upgrade pip
+ifdef PIP_REQUIREMENTS
 	$(PIP) install -r $(PIP_REQUIREMENTS)
+endif
 	touch $@
 
-%: %.yml virtualenv
-	$(ANSIBLE_PLAYBOOK) $(ANSIBLE_PLAYBOOK_FLAGS) $<
+.PHONY: pip-freeze
+pip-freeze: | $(PIP)
+	$(PIP) freeze > $(PIP_REQUIREMENTS)
 
-%: %.vault virtualenv
-	$(ANSIBLE_VAULT) decrypt --output=$@ $<
 
-ansible-galaxy-install: virtualenv $(ANSIBLE_REQUIREMENTS)
-	$(ANSIBLE_GALAXY) install --role-file=$(ANSIBLE_REQUIREMENTS) --roles-path=roles.d/
+$(ANSIBLE): | virtualenv
+	@test -f $@ || (echo "Cannot find Ansible. Try running 'make ansible-install' or fix PIP_REQUIREMENTS." && false)
+	$(ANSIBLE) --version
 
-show-inventory: virtualenv
-	$(ANSIBLE_INVENTORY) $(ANSIBLE_INVENTORY_FLAGS) --graph
+.PHONY: ansible-install
+ansible-install: | $(PIP)
+	$(PIP) install ansible
+	$(ANSIBLE) --version
+
+.PHONY: galaxy-install
+galaxy-install: $(ANSIBLE_REQUIREMENTS) | $(ANSIBLE)
+	$(ANSIBLE.GALAXY) install --role-file=$(ANSIBLE_REQUIREMENTS) --roles-path=$(ANSIBLE_ROLES_PATH)
+
+.PHONY: list-inventory
+list-inventory: | $(ANSIBLE)
+	$(ANSIBLE.INVENTORY) $(ANSIBLE_INVENTORY_FLAGS) --list
+
+.PHONY: show-inventory
+show-inventory: | $(ANSIBLE)
+	$(ANSIBLE.INVENTORY) $(ANSIBLE_INVENTORY_FLAGS) --graph
+
+.PHONY: run-playbook
+run-playbook: $(PLAYBOOK) | $(ANSIBLE)
+	$(ANSIBLE.PLAYBOOK) $(ANSIBLE_PLAYBOOK_FLAGS) $^
+
+%: %.yml FORCE-PHONY | $(ANSIBLE)
+	$(ANSIBLE.PLAYBOOK) $(ANSIBLE_PLAYBOOK_FLAGS) $<
+
+%: %.vault | $(ANSIBLE)
+	$(ANSIBLE.VAULT) decrypt $(ANSIBLE_VAULT_FLAGS) --output=$@ $<
+
+.PHONY: FORCE-PHONY
+FORCE-PHONY:
+	@
