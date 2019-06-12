@@ -33,7 +33,8 @@ virtualenv: $(VENV_DIR)/.installed
 clean-virtualenv:
 	$(RM) -r $(VENV_DIR)
 
-$(PIP): $(PYTHON)
+$(PIP): | $(VENV_DIR)
+	$(PIP) install --upgrade pip
 
 $(PYTHON): | $(VENV_DIR)
 
@@ -45,8 +46,7 @@ else
 endif
 	echo '*' > $(VENV_DIR)/.gitignore
 
-$(VENV_DIR)/.installed: $(PIP_REQUIREMENTS) | $(VENV_DIR)
-	$(PIP) install --upgrade pip
+$(VENV_DIR)/.installed: $(PIP) $(PIP_REQUIREMENTS) | $(VENV_DIR)
 ifdef PIP_REQUIREMENTS
 	$(PIP) install -r $(PIP_REQUIREMENTS)
 endif
