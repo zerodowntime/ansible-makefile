@@ -17,7 +17,7 @@
 - `USE_PYTHON3` - if `yes` will use python3, else virtualenv tool (default: `yes`)
 - `VENV_DIR` - a directory to create the environment in (default: `venv`)
 - `ADD_PATH` - if `yes` will add VENV_DIR to PATH (default: `yes`)
-- `PYTHON_EXE` - the Python interpreter to use (default: `requirements.txt`)
+- `PYTHON_EXE` - the Python interpreter to use (default: `python3|python2`)
 - `PIP_REQUIREMENTS` - pip requirements file name (default: `requirements.txt`)
 - `ANSIBLE_REQUIREMENTS` - file containing a list of roles to be imported (default: `requirements.yml`)
 - `ANSIBLE_ROLES_PATH` - the path to the directory containing your roles (default: `roles.d/`)
