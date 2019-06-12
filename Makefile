@@ -5,6 +5,7 @@
 USE_PYTHON3          ?= yes
 ADD_PATH             ?= yes
 VENV_DIR             ?= venv
+PYTHON_EXE           ?= $(if $(filter y yes,$(USE_PYTHON3)),python3,python2)
 PIP_REQUIREMENTS     ?= requirements.txt
 ANSIBLE_REQUIREMENTS ?= requirements.yml
 ANSIBLE_ROLES_PATH   ?= roles.d/
@@ -36,9 +37,9 @@ $(PIP) $(PYTHON): | $(VENV_DIR)
 
 $(VENV_DIR):
 ifeq ($(USE_PYTHON3), yes)
-	python3 -m venv $(VENV_DIR)
+	$(PYTHON_EXE) -m venv $(VENV_DIR)
 else
-	virtualenv $(VENV_DIR)
+	virtualenv --python=$(PYTHON_EXE) $(VENV_DIR)
 endif
 	echo '*' > $(VENV_DIR)/.gitignore
 
