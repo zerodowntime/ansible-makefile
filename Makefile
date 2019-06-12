@@ -33,7 +33,9 @@ virtualenv: $(VENV_DIR)/.installed
 clean-virtualenv:
 	$(RM) -r $(VENV_DIR)
 
-$(PIP) $(PYTHON): | $(VENV_DIR)
+$(PIP): $(PYTHON)
+
+$(PYTHON): | $(VENV_DIR)
 
 $(VENV_DIR):
 ifeq ($(USE_PYTHON3), yes)
