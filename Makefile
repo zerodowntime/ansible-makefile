@@ -5,8 +5,7 @@
 # Configuration
 
 PYTHON_EXE           ?= python
-USE_VENV_MODULE      ?= $(if $(filter 1 2, $(word 2,\
-                        $(subst ., ,$(shell $(PYTHON_EXE) --version 2>&1)))),no,yes)
+USE_VENV_MODULE      ?= $(if $(filter 3,$(word 2,$(subst ., ,$(shell $(PYTHON_EXE) --version 2>&1)))),yes,no)
 VENV_DIR             ?= venv
 ADD_PATH             ?= yes
 PIP_REQUIREMENTS     ?= requirements.txt
