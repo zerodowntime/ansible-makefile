@@ -14,10 +14,10 @@
 - `%` - decrypts `%.vault` file
 
 ## Configuration variables
-- `USE_PYTHON3` - if `yes` will use python3, else virtualenv tool (default: `yes`)
+- `PYTHON_EXE` - the Python interpreter to use (default: `python`)
+- `USE_VENV_MODULE` - if `yes` will use venv module (python3 only!), else virtualenv tool will be used (default: autodetect: `no` for python2, `yes` for python3)
 - `VENV_DIR` - a directory to create the environment in (default: `venv`)
 - `ADD_PATH` - if `yes` will add VENV_DIR to PATH (default: `yes`)
-- `PYTHON_EXE` - the Python interpreter to use (default: `python3|python2`)
 - `PIP_REQUIREMENTS` - pip requirements file name (default: `requirements.txt`)
 - `ANSIBLE_REQUIREMENTS` - file containing a list of roles to be imported (default: `requirements.yml`)
 - `ANSIBLE_ROLES_PATH` - the path to the directory containing your roles (default: `roles.d/`)

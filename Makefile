@@ -4,10 +4,11 @@
 
 # Configuration
 
-USE_PYTHON3          ?= yes
-ADD_PATH             ?= yes
+PYTHON_EXE           ?= python
+USE_VENV_MODULE      ?= $(if $(filter 1 2, $(word 2,\
+                        $(subst ., ,$(shell $(PYTHON_EXE) --version 2>&1)))),no,yes)
 VENV_DIR             ?= venv
-PYTHON_EXE           ?= $(if $(filter y yes,$(USE_PYTHON3)),python3,python2)
+ADD_PATH             ?= yes
 PIP_REQUIREMENTS     ?= requirements.txt
 ANSIBLE_REQUIREMENTS ?= requirements.yml
 ANSIBLE_ROLES_PATH   ?= roles.d/
@@ -49,7 +50,7 @@ $(PIP): | $(VENV_DIR)
 $(PYTHON): | $(VENV_DIR)
 
 $(VENV_DIR):
-ifeq ($(USE_PYTHON3), yes)
+ifeq ($(USE_VENV_MODULE), yes)
 	$(PYTHON_EXE) -m venv $(VENV_DIR)
 else
 	virtualenv --python=$(PYTHON_EXE) $(VENV_DIR)
