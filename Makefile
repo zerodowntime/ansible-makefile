@@ -2,6 +2,8 @@
 ## author: Piotr Stawarski <piotr.stawarski@zerodowntime.pl>
 ##
 
+# Configuration
+
 USE_PYTHON3          ?= yes
 ADD_PATH             ?= yes
 VENV_DIR             ?= venv
@@ -9,6 +11,14 @@ PYTHON_EXE           ?= $(if $(filter y yes,$(USE_PYTHON3)),python3,python2)
 PIP_REQUIREMENTS     ?= requirements.txt
 ANSIBLE_REQUIREMENTS ?= requirements.yml
 ANSIBLE_ROLES_PATH   ?= roles.d/
+
+# Execution
+
+ANSIBLE_INVENTORY_FLAGS =
+ANSIBLE_PLAYBOOK_FLAGS  =
+ANSIBLE_VAULT_FLAGS     =
+
+# Internals
 
 PIP               = $(VENV_DIR)/bin/pip
 PYTHON            = $(VENV_DIR)/bin/python
